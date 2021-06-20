@@ -42,6 +42,10 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
         hobo.crop("./furret.jpg", "./furrent_crop.jpg", size)
         self.assertTrue("./furret_crop.jpg")
 
+    def test_landscape_or_portrait(self):
+        self.assertTrue(hobo.is_landscape("./surfing_pikachu.JPG"))
+        self.assertFalse(hobo.is_portrait("./surfing_pikachu.JPG"))
+
 
 if __name__ == "__main__":
     unittest.main()

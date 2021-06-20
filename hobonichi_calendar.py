@@ -54,24 +54,40 @@ def Centimeter_To_Pixel(cm, ppi):
 
 
 def Create_Blank_Image(output_path, size):
-    image = Image.new("RGB", size)
-    white = (255, 255, 255)
+    i = Image.new("RGB", size)
+    bg = (255, 255, 255)
     for y in range(size[1]):
         for x in range(size[0]):
-            image.putpixel((x, y), white)
-    image.save(output_path)
+            i.putpixel((x, y), bg)
+    i.save(output_path)
 
 
 def resize(image_path, output_path, size):
-    image = Image.open(image_path)
-    resized_image = image.resize(size)
+    i = Image.open(image_path)
+    resized_image = i.resize(size)
+    i.close()
     resized_image.save(output_path)
 
 
 def crop(image_path, output_path, coords):
-    image = Image.open(image_path)
-    cropped_image = image.crop(coords)
+    i = Image.open(image_path)
+    cropped_image = i.crop(coords)
+    i.close()
     cropped_image.save(output_path)
+
+
+def is_landscape(image_path):
+    i = Image.open(image_path)
+    (w, h) = i.size
+    i.close()
+    return w > h
+
+
+def is_portrait(image_path):
+    i = Image.open(image_path)
+    (w, h) = i.size
+    i.close()
+    return h > w
 
 
 if __name__ == "__main__":
