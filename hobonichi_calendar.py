@@ -1,12 +1,23 @@
-from PIL import Image
+from PIL import Image, ImageOps
 import tempfile
+import os
 
 file_types = [("JPEG (*.jpg)", "*.jpg"),
               ("All files (*.*)", "*.*")]
 
 
-def main():
-    return
+def main(image_path, output_path):
+    is_portrait(image_path)
+    Get_Cousin_Calendar_Size()
+    paper_size_tuple = Get_PaperSize()
+    paper_px = Length_To_Pixel(paper_size_tuple, True)
+    hobo_px = Length_To_Pixel(Get_Cousin_Calendar_Size())
+
+    if is_landscape(image_path):
+        # if landscape, make the width twice as big and take up two calendar size
+        resize(image_path, output_path, (2*hobo_px[0], hobo_px[1]))
+    else:
+        resize(image_path, output_path, hobo_px)
 
 
 # Warning, the 8.5 x 11 is in inches. No idea what the default metric size is for printer paper
@@ -28,29 +39,38 @@ def Get_Supported_File_Types():
     return file_types
 
 
-def Convert_To_Pixel(paper_size_tuple):
+def Length_To_Pixel(paper_size_tuple, is_inches=False):
     (w, h) = paper_size_tuple
 
-    w_cm = Inches_To_Cm(w)
-    h_cm = Inches_To_Cm(h)
+    if is_inches:
+        w_cm = Inches_To_Cm(w)
+        h_cm = Inches_To_Cm(h)
+    else:
+        w_cm = w
+        h_cm = h
 
     w_px = Centimeter_To_Pixel(w_cm, 1)
     h_px = Centimeter_To_Pixel(h_cm, 1)
 
-    print(f"width is {w_px} px and height is {h_px} px")
-
+    return (w_px, h_px)
 
 # 1in =2.54cm this is convertin
+
+
 def Inches_To_Cm(i):
     return i*2.54
 
+# Source: https://pixelsconverter.com/pixels-to-centimeters
+# But while it is dependent on DPI, 1 cm = 37.79 px
 
-def Pixel_To_Centimeter(px, ppi):
-    return px*(2.54/ppi)
+
+def Pixel_To_Centimeter(px, ppi=1):
+    # return px*(2.54/ppi)
+    return int(round(px/37.79))
 
 
 def Centimeter_To_Pixel(cm, ppi):
-    return (cm/ppi)
+    return int(round(cm*37.79))
 
 
 def Create_Blank_Image(output_path, size):
@@ -62,11 +82,13 @@ def Create_Blank_Image(output_path, size):
     i.save(output_path)
 
 
-def resize(image_path, output_path, size):
+def resize(image_path, output_path, size_px):
     i = Image.open(image_path)
-    resized_image = i.resize(size)
+    resized_image = i.resize(size_px)
+    ni = ImageOps.expand(resized_image, 5)
     i.close()
-    resized_image.save(output_path)
+    # resized_image.save(output_path)
+    ni.save(output_path)
 
 
 def crop(image_path, output_path, coords):
@@ -79,8 +101,9 @@ def crop(image_path, output_path, coords):
 def is_landscape(image_path):
     i = Image.open(image_path)
     (w, h) = i.size
+    print(f"width: {w}, height: {h}")
     i.close()
-    return w > h
+    return w > h+(h*0.50)
 
 
 def is_portrait(image_path):
@@ -90,5 +113,22 @@ def is_portrait(image_path):
     return h > w
 
 
+def convert_photos_in_directory(path):
+    p = path
+    try:
+        os.mkdir(f"{p}/ForHobonichi/")
+    except:
+        pass
+    for root, dir, files in os.walk(p, topdown=True):
+        exclude = set(['ForHobonichi', 'New folder', 'Windows', 'Desktop'])
+        dir[:] = [d for d in dir if d not in exclude]
+        for file in files:
+            input_path = f"{root}{file}"
+            output_path = f"{p}ForHobonichi/{file}"
+            if file.endswith((".jpeg", ".jpg", ".JPG")):
+                print(input_path)
+                main(input_path, output_path)
+
+
 if __name__ == "__main__":
-    main()
+    convert_photos_in_directory("")

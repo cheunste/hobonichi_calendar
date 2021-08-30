@@ -17,15 +17,17 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
         self.assertTrue(hobo.Get_Supported_File_Types() == [
                         ("JPEG (*.jpg)", "*.jpg"), ("All files (*.*)", "*.*")])
 
-    def test_convert_paper_to_pixel(self):
-        hobo.Convert_To_Pixel((8.5, 11))
-
     def test_in_cm_convert(self):
         r = hobo.Inches_To_Cm(8.5)
         self.assertTrue(r == 21.59)
 
     def test_pixel_to_cm(self):
-        hobo.Pixel_To_Centimeter(800, 1)
+        #self.assertTrue(hobo.Pixel_To_Centimeter(800) == 2032.0)
+        #self.assertTrue(hobo.Pixel_To_Centimeter(800, 5) == 406.4)
+        self.assertTrue(hobo.Pixel_To_Centimeter(800) == 21)
+
+    def test_cm_to_pixel(self):
+        self.assertTrue(hobo.Centimeter_To_Pixel(1, 2) == 38)
 
     def test_create_new_image(self):
         p = "./test.jpg"
@@ -37,13 +39,18 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
         hobo.resize("./furret.jpg", "./furrent_rescale.jpg", (150, 150))
         self.assertTrue("./furret_rescale.jpg")
 
+        print(hobo.Length_To_Pixel(hobo.Get_Cousin_Calendar_Size()))
+        hobo.resize("./furret.jpg", "./furrent_rescale2.jpg",
+                    hobo.Length_To_Pixel(hobo.Get_Cousin_Calendar_Size()))
+        self.assertTrue("./furret_rescale2.jpg")
+
     def test_crop(self):
         size = (490, 140, 930, 720)
         hobo.crop("./furret.jpg", "./furrent_crop.jpg", size)
         self.assertTrue("./furret_crop.jpg")
 
     def test_landscape_or_portrait(self):
-        self.assertTrue(hobo.is_landscape("./surfing_pikachu.JPG"))
+        self.assertTrue(hobo.is_landscape("./surfing_pikachu.jpg"))
         self.assertFalse(hobo.is_portrait("./surfing_pikachu.JPG"))
 
 
