@@ -15,9 +15,9 @@ def main(image_path, output_path):
 
     if is_landscape(image_path):
         # if landscape, make the width twice as big and take up two calendar size
-        resize(image_path, output_path, (2*hobo_px[0], hobo_px[1]))
+        shrink_image(image_path, output_path, (2*hobo_px[0], hobo_px[1]))
     else:
-        resize(image_path, output_path, hobo_px)
+        shrink_image(image_path, output_path, hobo_px)
 
 
 # Warning, the 8.5 x 11 is in inches. No idea what the default metric size is for printer paper
@@ -79,23 +79,24 @@ def Create_Blank_Image(output_path, size):
     for y in range(size[1]):
         for x in range(size[0]):
             i.putpixel((x, y), bg)
-    i.save(output_path)
+    i.save(output_path, 'PNG', quality=95)
 
 
-def resize(image_path, output_path, size_px):
+def shrink_image(image_path, output_path, size_px):
     i = Image.open(image_path)
-    resized_image = i.resize(size_px)
-    ni = ImageOps.expand(resized_image, 5)
-    i.close()
-    # resized_image.save(output_path)
-    ni.save(output_path)
+    i.thumbnail(size_px)
+    # this adds the border to the shrinked image
+    ni = ImageOps.expand(i, 5)
+    (w, h) = ni.size
+    print(f"shrinked width: {w}, shrinked height: {h}")
+    ni.save(output_path, 'PNG', quality=95)
 
 
 def crop(image_path, output_path, coords):
     i = Image.open(image_path)
     cropped_image = i.crop(coords)
     i.close()
-    cropped_image.save(output_path)
+    cropped_image.save(output_path, 'PNG', quality=95)
 
 
 def is_landscape(image_path):
@@ -117,7 +118,8 @@ def convert_photos_in_directory(path):
     p = path
     try:
         os.mkdir(f"{p}/ForHobonichi/")
-    except:
+    except Exception as e:
+        print("eh?: ", e)
         pass
     for root, dir, files in os.walk(p, topdown=True):
         exclude = set(['ForHobonichi', 'New folder', 'Windows', 'Desktop'])
@@ -131,4 +133,4 @@ def convert_photos_in_directory(path):
 
 
 if __name__ == "__main__":
-    convert_photos_in_directory("")
+    convert_photos_in_directory("/Users/stephen/Downloads/Photos/")
