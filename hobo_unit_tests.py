@@ -46,7 +46,7 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
 
     def test_crop(self):
         size = (490, 140, 930, 720)
-        hobo.crop("./furret.jpg", "./furrent_crop.jpg", size)
+        hobo.crop("./furret.JPG", "./furrent_crop.jpg", size)
         self.assertTrue("./furret_crop.jpg")
 
     def test_landscape_or_portrait(self):
