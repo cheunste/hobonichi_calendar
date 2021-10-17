@@ -1,6 +1,8 @@
 import unittest
 import hobonichi_calendar as hobo
+import FinalImage as fi
 import os
+from PIL import Image, ImageOps
 
 
 class Test_Hobonichi_Calendar(unittest.TestCase):
@@ -22,8 +24,8 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
         self.assertTrue(r == 21.59)
 
     def test_pixel_to_cm(self):
-        #self.assertTrue(hobo.Pixel_To_Centimeter(800) == 2032.0)
-        #self.assertTrue(hobo.Pixel_To_Centimeter(800, 5) == 406.4)
+        # self.assertTrue(hobo.Pixel_To_Centimeter(800) == 2032.0)
+        # self.assertTrue(hobo.Pixel_To_Centimeter(800, 5) == 406.4)
         self.assertTrue(hobo.Pixel_To_Centimeter(800) == 21)
 
     def test_cm_to_pixel(self):
@@ -36,12 +38,12 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
         self.assertTrue(r)
 
     def test_rescale(self):
-        hobo.resize("./furret.jpg", "./furrent_rescale.jpg", (150, 150))
+        hobo.shrink_image("./furret.jpg", "./furrent_rescale.jpg", (150, 150))
         self.assertTrue("./furret_rescale.jpg")
 
         print(hobo.Length_To_Pixel(hobo.Get_Cousin_Calendar_Size()))
-        hobo.resize("./furret.jpg", "./furrent_rescale2.jpg",
-                    hobo.Length_To_Pixel(hobo.Get_Cousin_Calendar_Size()))
+        hobo.shrink_image("./furret.jpg", "./furrent_rescale2.jpg",
+                          hobo.Length_To_Pixel(hobo.Get_Cousin_Calendar_Size()))
         self.assertTrue("./furret_rescale2.jpg")
 
     def test_crop(self):
@@ -52,6 +54,49 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
     def test_landscape_or_portrait(self):
         self.assertTrue(hobo.is_landscape("./surfing_pikachu.jpg"))
         self.assertFalse(hobo.is_portrait("./surfing_pikachu.JPG"))
+
+    def test_put_to_final_image(self):
+        p = "./"
+        # assume the following are inches
+        test_width = 8.5
+        test_height = 11
+
+        size_in_pixel = hobo.Length_To_Pixel(
+            (test_width, test_height), is_inches=True)
+        fi.FinalImage(p, size_in_pixel)
+
+        r = os.path.exists(p)
+        self.assertTrue(r)
+
+        i = Image.open(f"./Final_print.jpg")
+        (w, h) = i.size
+        (nw, nh) = hobo.Length_To_Pixel(
+            (test_width, test_height), is_inches=True)
+        self.assertTrue(w == nw)
+        self.assertTrue(h == nh)
+
+    def test_paste_thumbnail_to_final_image(self):
+
+        test_width = 8.5
+        test_height = 11
+        test_thumbnail = "./ForHobonichi/test.png"
+        size_in_pixel = hobo.Length_To_Pixel(
+            (test_width, test_height), is_inches=True)
+
+        f = fi.FinalImage("./", size_in_pixel)
+        i = f.get_path()
+        s = Image.open(test_thumbnail)
+        (w, h) = s.size
+        f.paste_thumbnail(test_thumbnail)
+
+        expected_w = s.width
+        expected_h = s.height
+        s.close
+
+        self.assertTrue(f.get_width_ptr() == expected_w,
+                        f"resulting pointer from the final image is : {f.get_width_ptr()} and not {expected_w}")
+
+        f.paste_thumbnail("./ForHobonichi/test2.png")
 
 
 if __name__ == "__main__":
