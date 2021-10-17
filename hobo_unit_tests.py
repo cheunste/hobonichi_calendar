@@ -24,8 +24,6 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
         self.assertTrue(r == 21.59)
 
     def test_pixel_to_cm(self):
-        # self.assertTrue(hobo.Pixel_To_Centimeter(800) == 2032.0)
-        # self.assertTrue(hobo.Pixel_To_Centimeter(800, 5) == 406.4)
         self.assertTrue(hobo.Pixel_To_Centimeter(800) == 21)
 
     def test_cm_to_pixel(self):
@@ -38,11 +36,11 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
         self.assertTrue(r)
 
     def test_rescale(self):
-        hobo.shrink_image("./furret.jpg", "./furrent_rescale.jpg", (150, 150))
+        hobo.shrink_image("./furret.JPG", "./furrent_rescale.jpg", (150, 150))
         self.assertTrue("./furret_rescale.jpg")
 
         print(hobo.Length_To_Pixel(hobo.Get_Cousin_Calendar_Size()))
-        hobo.shrink_image("./furret.jpg", "./furrent_rescale2.jpg",
+        hobo.shrink_image("./furret.JPG", "./furrent_rescale2.jpg",
                           hobo.Length_To_Pixel(hobo.Get_Cousin_Calendar_Size()))
         self.assertTrue("./furret_rescale2.jpg")
 
@@ -52,7 +50,7 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
         self.assertTrue("./furret_crop.jpg")
 
     def test_landscape_or_portrait(self):
-        self.assertTrue(hobo.is_landscape("./surfing_pikachu.jpg"))
+        self.assertTrue(hobo.is_landscape("./surfing_pikachu.JPG"))
         self.assertFalse(hobo.is_portrait("./surfing_pikachu.JPG"))
 
     def test_put_to_final_image(self):
