@@ -1,6 +1,7 @@
 from PIL import Image, ImageOps
 import tempfile
 import os
+import FinalImage as fi
 
 file_types = [("JPEG (*.jpg)", "*.jpg"),
               ("All files (*.*)", "*.*")]
@@ -21,46 +22,7 @@ def main(image_path, output_path):
         shrink_image(image_path, output_path, hobo_px)
 
 
-# This is the method where you stuff all the smaller thumbnail pictures into one printable picture.
-def create_printable_image(output_path, size_in_pixel):
-    final_image_name = "Final_print.jpg"
-    final_image_path = f"{output_path}/{final_image_name}"
-    Create_Blank_Image(final_image_path, size_in_pixel)
-    return final_image_path
-    #final_image = Image.open(f"{output_path}/{final_image_name}")
-    #(f_w, f_h) = final_image.size()
-    # These are pointers to keep track of the position of the images
-    #f_wp = 0
-    #f_hp = 0
-
-    #thumbnails = get_all_thumbnails(output_path, temp_name)
-    # for thumbnail in thumbnails:
-    #    t = Image.open(thumbnail)
-    #    (t_w, t_h) = t.size()
-
-    # for left_pos in range(0, f_w, f_h):
-    #    final_image.paste()
-    # pass
-
-
-def get_all_thumbnails(output_path, temp_name):
-    t = []
-    for root, dir, files in os.walk(f"{output_path}/{temp_name}", topdown=True):
-        exclude = set([f'{temp_name}', 'New folder', 'Windows', 'Desktop'])
-        dir[:] = [d for d in dir if d not in exclude]
-        for file in files:
-            file_path = f"{output_path}{temp_name}/{file}"
-            t.append(file_path)
-    return t
-
-
-def paste_thumbnail(thumbnail_path, final_image_width_pointer, final_iamge_height_pointer):
-
-    pass
-
 # Warning, the 8.5 x 11 is in inches. No idea what the default metric size is for printer paper
-
-
 def Get_PaperSize(paper=(8.5, 11)):
     return paper
 
@@ -176,9 +138,12 @@ def convert_photos_in_directory(path):
                 main(input_path, output_path)
 
     size_in_pixel = Length_To_Pixel(Get_PaperSize(), is_inches=True)
-    create_printable_image(
-        f"{p}", size_in_pixel)
+
+    f = fi.FinalImage(p, size_in_pixel)
+    t = f.get_all_thumbnails(f"{p}{temp_name}", temp_name)
+    f.paste_thumbnails(t)
 
 
 if __name__ == "__main__":
-    convert_photos_in_directory("/Users/stephen/Downloads/Photos/")
+    d = input("Please entire a directory with images (ie. /Users/Alex/Photos):")
+    convert_photos_in_directory(d)

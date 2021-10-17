@@ -88,7 +88,15 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
         s = Image.open(test_thumbnail)
         (w, h) = s.size
         f.paste_thumbnail(test_thumbnail)
-        pass
+
+        expected_w = s.width
+        expected_h = s.height
+        s.close
+
+        self.assertTrue(f.get_width_ptr() == expected_w,
+                        f"resulting pointer from the final image is : {f.get_width_ptr()} and not {expected_w}")
+
+        f.paste_thumbnail("./ForHobonichi/test2.png")
 
 
 if __name__ == "__main__":
