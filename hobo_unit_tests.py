@@ -96,6 +96,22 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
 
         f.paste_thumbnail("./ForHobonichi/test2.png")
 
+    def test_HeightException(self):
+        test_width = 8.5
+        test_height = 11
+        test_thumbnail = "./ForHobonichi/test.png"
+        size_in_pixel = hobo.Length_To_Pixel(
+            (test_width, test_height), is_inches=True)
+
+        f = fi.FinalImage("./", size_in_pixel)
+        f.height_ptr = 1000
+
+        try:
+            f.paste_thumbnail(test_thumbnail)
+            self.assertTrue(False)
+        except fi.HeightOutOfBoundException:
+            self.assertTrue(True)
+
 
 if __name__ == "__main__":
     unittest.main()

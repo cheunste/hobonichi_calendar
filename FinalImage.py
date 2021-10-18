@@ -49,7 +49,8 @@ class FinalImage():
             self.width_ptr = 0
             pass
         if self.is_over_final_image_height(tw):
-            pass
+            raise HeightOutOfBoundException("Image Height Out of Bound")
+            return
 
         self.__paste(t)
         t.close
@@ -76,3 +77,7 @@ class FinalImage():
 
     def __increment_height_ptr(self):
         self.height_ptr = self.tallest_image_height
+
+
+class HeightOutOfBoundException(Exception):
+    pass
