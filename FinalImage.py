@@ -14,7 +14,8 @@ class FinalImage():
     # Used to address to a new row if the width of the final image is exceeded
     tallest_image_height = 0
 
-    def __init__(self, output_path, size_in_pixel):
+    def __init__(self, name, output_path, size_in_pixel):
+        self.final_image_name = name
         self.path = f"{output_path}/{self.final_image_name}"
         hobo.Create_Blank_Image(self.path, size_in_pixel)
 
@@ -22,7 +23,7 @@ class FinalImage():
         t = []
         for root, dir, files in os.walk(f"{output_path}", topdown=True):
             exclude = set([f'{temp_name}', 'New folder',
-                          'Windows', 'Desktop', f'{temp_name}'])
+                           'Windows', 'Desktop', f'{temp_name}'])
             dir[:] = [d for d in dir if d not in exclude]
             for f in files:
                 file_path = f"{output_path}/{f}"

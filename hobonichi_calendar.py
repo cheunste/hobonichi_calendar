@@ -23,14 +23,18 @@ def setup(image_path, output_path):
         shrink_image(image_path, output_path, hobo_px)
 
 
-def paste_thumbnails():
-    f = fi.FinalImage(p, size_in_pixel)
+def paste_thumbnails(p, size_in_pixel):
+    id = 0
+    f = fi.FinalImage(f"Final_Print{id}.jpg", f"{p}", size_in_pixel)
     t = copy.deepcopy(f.get_all_thumbnails(f"{p}{temp_name}", temp_name))
     for thumbnail_path in t:
         try:
             f.paste_thumbnail(thumbnail_path)
         except fi.HeightOutOfBoundException:
-            pass
+            # Create a new Image
+            id += 1
+            new_f = fi.FinalImage(f"Final_Print{id}.jpg", p, size_in_pixel)
+            f = new_f
 
 # Warning, the 8.5 x 11 is in inches. No idea what the default metric size is for printer paper
 
@@ -150,7 +154,7 @@ def convert_photos_in_directory(path):
                 setup(input_path, output_path)
 
     size_in_pixel = Length_To_Pixel(Get_PaperSize(), is_inches=True)
-    paste_thumbnails()
+    paste_thumbnails(p, size_in_pixel)
 
 
 if __name__ == "__main__":
