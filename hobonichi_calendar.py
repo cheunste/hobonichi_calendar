@@ -2,13 +2,14 @@ from PIL import Image, ImageOps
 import tempfile
 import os
 import FinalImage as fi
+import copy
 
 file_types = [("JPEG (*.jpg)", "*.jpg"),
               ("All files (*.*)", "*.*")]
 temp_name = 'ForHobonichi'
 
 
-def main(image_path, output_path):
+def setup(image_path, output_path):
     is_portrait(image_path)
     Get_Cousin_Calendar_Size()
     paper_size_tuple = Get_PaperSize()
@@ -22,7 +23,22 @@ def main(image_path, output_path):
         shrink_image(image_path, output_path, hobo_px)
 
 
+def paste_thumbnails(p, size_in_pixel):
+    id = 0
+    f = fi.FinalImage(f"Final_Print{id}.jpg", f"{p}", size_in_pixel)
+    t = copy.deepcopy(f.get_all_thumbnails(f"{p}{temp_name}", temp_name))
+    for thumbnail_path in t:
+        try:
+            f.paste_thumbnail(thumbnail_path)
+        except fi.HeightOutOfBoundException:
+            # Create a new Image
+            id += 1
+            new_f = fi.FinalImage(f"Final_Print{id}.jpg", p, size_in_pixel)
+            f = new_f
+
 # Warning, the 8.5 x 11 is in inches. No idea what the default metric size is for printer paper
+
+
 def Get_PaperSize(paper=(8.5, 11)):
     return paper
 
@@ -135,13 +151,10 @@ def convert_photos_in_directory(path):
             output_path = f"{p}{temp_name}/{file}"
             if file.endswith((".jpeg", ".jpg", ".JPG")):
                 print(input_path)
-                main(input_path, output_path)
+                setup(input_path, output_path)
 
     size_in_pixel = Length_To_Pixel(Get_PaperSize(), is_inches=True)
-
-    f = fi.FinalImage(p, size_in_pixel)
-    t = f.get_all_thumbnails(f"{p}{temp_name}", temp_name)
-    f.paste_thumbnails(t)
+    paste_thumbnails(p, size_in_pixel)
 
 
 if __name__ == "__main__":

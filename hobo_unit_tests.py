@@ -61,7 +61,7 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
 
         size_in_pixel = hobo.Length_To_Pixel(
             (test_width, test_height), is_inches=True)
-        fi.FinalImage(p, size_in_pixel)
+        fi.FinalImage("Final_print.jpg", p, size_in_pixel)
 
         r = os.path.exists(p)
         self.assertTrue(r)
@@ -81,7 +81,7 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
         size_in_pixel = hobo.Length_To_Pixel(
             (test_width, test_height), is_inches=True)
 
-        f = fi.FinalImage("./", size_in_pixel)
+        f = fi.FinalImage("test.jpg", "./", size_in_pixel)
         i = f.get_path()
         s = Image.open(test_thumbnail)
         (w, h) = s.size
@@ -95,6 +95,22 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
                         f"resulting pointer from the final image is : {f.get_width_ptr()} and not {expected_w}")
 
         f.paste_thumbnail("./ForHobonichi/test2.png")
+
+    def test_HeightException(self):
+        test_width = 8.5
+        test_height = 11
+        test_thumbnail = "./ForHobonichi/test.png"
+        size_in_pixel = hobo.Length_To_Pixel(
+            (test_width, test_height), is_inches=True)
+
+        f = fi.FinalImage("Final_Image.jpg", "./", size_in_pixel)
+        f.height_ptr = 1000
+
+        try:
+            f.paste_thumbnail(test_thumbnail)
+            self.assertTrue(False)
+        except fi.HeightOutOfBoundException:
+            self.assertTrue(True)
 
 
 if __name__ == "__main__":
