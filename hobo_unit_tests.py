@@ -8,9 +8,9 @@ from PIL import Image, ImageOps
 class Test_Hobonichi_Calendar(unittest.TestCase):
 
     # Both test_width and test_height are in inches
-    self.test_width = 8.5
-    self.test_height = 8.5
-    self.test_thumbnail = "./ForHobonichi/test.png"
+    test_width = 8.5
+    test_height = 8.5
+    test_thumbnail = "./ForHobonichi/test.png"
 
     def test_calculate_papersize(self):
         self.assertTrue(hobo.Get_PaperSize() == (8.5, 11))
@@ -108,6 +108,13 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
             self.assertTrue(False)
         except fi.HeightOutOfBoundException:
             self.assertTrue(True)
+    
+    def test_read_settings(self):
+        p = hobo.read_printer_settings()
+        f = hobo.read_final_image_settings()
+        self.assertIsNotNone(p['dpi'])
+        self.assertIsNotNone(f['thumbnail']['in_inches'])
+        pass
 
 
 if __name__ == "__main__":

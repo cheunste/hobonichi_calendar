@@ -3,6 +3,7 @@ import tempfile
 import os
 import FinalImage as fi
 import copy
+import yaml
 
 file_types = [("JPEG (*.jpg)", "*.jpg"),
               ("All files (*.*)", "*.*")]
@@ -22,6 +23,16 @@ def setup(image_path, output_path):
     else:
         shrink_image(image_path, output_path, hobo_px)
 
+
+def read_printer_settings():
+    with open("./config.yaml",'r') as f:
+        x = yaml.load(f,Loader=yaml.FullLoader)
+    return x['printer']
+
+def read_final_image_settings():
+    with open("./config.yaml",'r') as f:
+        x = yaml.load(f,Loader=yaml.FullLoader)
+    return x['final_image']
 
 def paste_thumbnails(p, size_in_pixel):
     id = 0
