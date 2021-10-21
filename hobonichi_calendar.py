@@ -120,7 +120,9 @@ def Create_Blank_Image(output_path, size):
 
 
 def shrink_image(image_path, output_path, size_px):
-    i = Image.open(image_path)
+    #i = Image.open(image_path)
+    i = ImageOps.exif_transpose(Image.open(image_path))
+
     i.thumbnail(size_px)
 
     border = read_final_image_settings()['border']
@@ -140,7 +142,7 @@ def crop(image_path, output_path, coords):
 
 def is_landscape(image_path):
     i = Image.open(image_path)
-    (w, h) = i.size
+    (w, h) = ImageOps.exif_transpose(i).size
     print(f"width: {w}, height: {h}")
     i.close()
     return w > h+(h*0.50)
@@ -148,7 +150,7 @@ def is_landscape(image_path):
 
 def is_portrait(image_path):
     i = Image.open(image_path)
-    (w, h) = i.size
+    (w, h) = ImageOps.exif_transpose(i).size
     i.close()
     return h > w
 
