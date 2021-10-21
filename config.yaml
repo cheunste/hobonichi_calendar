@@ -1,0 +1,24 @@
+printer:
+  # Printer DPI (Dots/Inch)
+  dpi: 300
+  # Printer PPI (Pixel/Inch)
+  ppi: 200
+  # Is the paper output in inches or cm?
+  in_inches: True
+  # Width of the paper (unitless)
+  paper_width: 8.5
+  # Height of the paper (unitless)
+  paper_height: 11
+
+final_image:
+  # This creates a black border around the thumbnail once printed (in pixel)
+  border: 5
+  # Name of the final image. Leave the {0} in the name before the .jpg
+  name: "final_print{0}.jpg"
+  # The size of the thumbnail you want.
+  # For Reference a Hobonichi Cousin's calendar size is 3.3cm x 2.6cm
+  # Hobonichi Week's calendar size is  2cm x 2.4cm
+  thumbnail:
+    in_inches: False
+    width: 3.3
+    height: 2.6

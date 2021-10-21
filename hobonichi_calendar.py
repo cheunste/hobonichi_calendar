@@ -3,11 +3,31 @@ import tempfile
 import os
 import FinalImage as fi
 import copy
+import yaml
 
 file_types = [("JPEG (*.jpg)", "*.jpg"),
               ("All files (*.*)", "*.*")]
 temp_name = 'ForHobonichi'
 
+def convert_photos_in_directory(path):
+    p = path
+    try:
+        os.mkdir(f"{p}/{temp_name}/")
+    except Exception as e:
+        print("eh?: ", e)
+        pass
+    for root, dir, files in os.walk(p, topdown=True):
+        exclude = set([f'{temp_name}', 'New folder', 'Windows', 'Desktop'])
+        dir[:] = [d for d in dir if d not in exclude]
+        for file in files:
+            input_path = f"{root}{file}"
+            output_path = f"{p}{temp_name}/{file}"
+            if file.endswith((".jpeg", ".jpg", ".JPG")):
+                print(input_path)
+                setup(input_path, output_path)
+
+    size_in_pixel = Length_To_Pixel(Get_PaperSize(), is_inches=True)
+    paste_thumbnails(p, size_in_pixel)
 
 def setup(image_path, output_path):
     is_portrait(image_path)
@@ -21,6 +41,7 @@ def setup(image_path, output_path):
         shrink_image(image_path, output_path, (2*hobo_px[0], hobo_px[1]))
     else:
         shrink_image(image_path, output_path, hobo_px)
+
 
 
 def paste_thumbnails(p, size_in_pixel):
@@ -40,17 +61,14 @@ def paste_thumbnails(p, size_in_pixel):
 
 
 def Get_PaperSize(paper=(8.5, 11)):
-    return paper
+    p = read_printer_settings()
+    return (p['paper_width'],p['paper_height'])
 
 
 def Get_Cousin_Calendar_Size():
     # Warning, the size here is in cm
-    return (3.3, 2.6)
-
-
-def Get_Weeks_Calendar_Size():
-    # Warning, the size here is in cm
-    return (2.0, 2.4)
+    f  = read_final_image_settings()
+    return (f['thumbnail']['width'],f['thumbnail']['height'])
 
 
 def Get_Supported_File_Types():
@@ -59,6 +77,7 @@ def Get_Supported_File_Types():
 
 def Length_To_Pixel(paper_size_tuple, is_inches=False):
     (w, h) = paper_size_tuple
+    ppi = read_printer_settings()['ppi']
 
     if is_inches:
         w_cm = Inches_To_Cm(w)
@@ -67,8 +86,8 @@ def Length_To_Pixel(paper_size_tuple, is_inches=False):
         w_cm = w
         h_cm = h
 
-    w_px = Centimeter_To_Pixel(w_cm, 1)
-    h_px = Centimeter_To_Pixel(h_cm, 1)
+    w_px = Centimeter_To_Pixel(w_cm, ppi)
+    h_px = Centimeter_To_Pixel(h_cm, ppi)
 
     return (w_px, h_px)
 
@@ -78,17 +97,17 @@ def Length_To_Pixel(paper_size_tuple, is_inches=False):
 def Inches_To_Cm(i):
     return i*2.54
 
-# Source: https://pixelsconverter.com/pixels-to-centimeters
-# But while it is dependent on DPI, 1 cm = 37.79 px
+# From : https://pixelsconverter.com/pixels-to-centimeters
+# 1 cm = 96px/2.54 =37.79 px,but it is also dependent on DPI
+# Note that it 1 px = 1 dot, so 300 DPI = 300 px 
 
 
 def Pixel_To_Centimeter(px, ppi=1):
-    # return px*(2.54/ppi)
-    return int(round(px/37.79))
+    return int(round(px*(2.54/ppi)))
 
 
 def Centimeter_To_Pixel(cm, ppi):
-    return int(round(cm*37.79))
+    return int(round(cm/(2.54/ppi)))
 
 
 def Create_Blank_Image(output_path, size):
@@ -103,8 +122,10 @@ def Create_Blank_Image(output_path, size):
 def shrink_image(image_path, output_path, size_px):
     i = Image.open(image_path)
     i.thumbnail(size_px)
+
+    border = read_final_image_settings()['border']
     # this adds the border to the shrinked image
-    ni = ImageOps.expand(i, 5)
+    ni = ImageOps.expand(i, border)
     (w, h) = ni.size
     print(f"shrinked width: {w}, shrinked height: {h}")
     ni.save(output_path, 'PNG', quality=95)
@@ -135,26 +156,16 @@ def is_portrait(image_path):
 def put_all_images_to_final_print():
     pass
 
+def read_printer_settings():
+    with open("./config.yaml",'r') as f:
+        x = yaml.load(f,Loader=yaml.FullLoader)
+    return x['printer']
 
-def convert_photos_in_directory(path):
-    p = path
-    try:
-        os.mkdir(f"{p}/{temp_name}/")
-    except Exception as e:
-        print("eh?: ", e)
-        pass
-    for root, dir, files in os.walk(p, topdown=True):
-        exclude = set([f'{temp_name}', 'New folder', 'Windows', 'Desktop'])
-        dir[:] = [d for d in dir if d not in exclude]
-        for file in files:
-            input_path = f"{root}{file}"
-            output_path = f"{p}{temp_name}/{file}"
-            if file.endswith((".jpeg", ".jpg", ".JPG")):
-                print(input_path)
-                setup(input_path, output_path)
+def read_final_image_settings():
+    with open("./config.yaml",'r') as f:
+        x = yaml.load(f,Loader=yaml.FullLoader)
+    return x['final_image']
 
-    size_in_pixel = Length_To_Pixel(Get_PaperSize(), is_inches=True)
-    paste_thumbnails(p, size_in_pixel)
 
 
 if __name__ == "__main__":
