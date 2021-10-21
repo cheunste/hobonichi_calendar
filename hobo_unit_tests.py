@@ -31,7 +31,7 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
         self.assertTrue(hobo.Pixel_To_Centimeter(3000,200) == 38)
 
     def test_cm_to_pixel(self):
-        self.assertTrue(hobo.Centimeter_To_Pixel(1, 2) == 38)
+        self.assertTrue(hobo.Centimeter_To_Pixel(1, 200) == 79)
 
     def test_create_new_image(self):
         p = "./test.jpg"
@@ -99,7 +99,7 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
             (self.test_width, self.test_height), is_inches=True)
 
         f = fi.FinalImage("Final_Image.jpg", "./", size_in_pixel)
-        f.height_ptr = 1000
+        f.height_ptr = 10000
 
         try:
             f.paste_thumbnail(self.test_thumbnail)
