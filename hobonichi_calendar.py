@@ -9,6 +9,25 @@ file_types = [("JPEG (*.jpg)", "*.jpg"),
               ("All files (*.*)", "*.*")]
 temp_name = 'ForHobonichi'
 
+def convert_photos_in_directory(path):
+    p = path
+    try:
+        os.mkdir(f"{p}/{temp_name}/")
+    except Exception as e:
+        print("eh?: ", e)
+        pass
+    for root, dir, files in os.walk(p, topdown=True):
+        exclude = set([f'{temp_name}', 'New folder', 'Windows', 'Desktop'])
+        dir[:] = [d for d in dir if d not in exclude]
+        for file in files:
+            input_path = f"{root}{file}"
+            output_path = f"{p}{temp_name}/{file}"
+            if file.endswith((".jpeg", ".jpg", ".JPG")):
+                print(input_path)
+                setup(input_path, output_path)
+
+    size_in_pixel = Length_To_Pixel(Get_PaperSize(), is_inches=True)
+    paste_thumbnails(p, size_in_pixel)
 
 def setup(image_path, output_path):
     is_portrait(image_path)
@@ -24,15 +43,6 @@ def setup(image_path, output_path):
         shrink_image(image_path, output_path, hobo_px)
 
 
-def read_printer_settings():
-    with open("./config.yaml",'r') as f:
-        x = yaml.load(f,Loader=yaml.FullLoader)
-    return x['printer']
-
-def read_final_image_settings():
-    with open("./config.yaml",'r') as f:
-        x = yaml.load(f,Loader=yaml.FullLoader)
-    return x['final_image']
 
 def paste_thumbnails(p, size_in_pixel):
     id = 0
@@ -112,8 +122,10 @@ def Create_Blank_Image(output_path, size):
 def shrink_image(image_path, output_path, size_px):
     i = Image.open(image_path)
     i.thumbnail(size_px)
+
+    border = read_final_image_settings()['border']
     # this adds the border to the shrinked image
-    ni = ImageOps.expand(i, 5)
+    ni = ImageOps.expand(i, border)
     (w, h) = ni.size
     print(f"shrinked width: {w}, shrinked height: {h}")
     ni.save(output_path, 'PNG', quality=95)
@@ -144,26 +156,16 @@ def is_portrait(image_path):
 def put_all_images_to_final_print():
     pass
 
+def read_printer_settings():
+    with open("./config.yaml",'r') as f:
+        x = yaml.load(f,Loader=yaml.FullLoader)
+    return x['printer']
 
-def convert_photos_in_directory(path):
-    p = path
-    try:
-        os.mkdir(f"{p}/{temp_name}/")
-    except Exception as e:
-        print("eh?: ", e)
-        pass
-    for root, dir, files in os.walk(p, topdown=True):
-        exclude = set([f'{temp_name}', 'New folder', 'Windows', 'Desktop'])
-        dir[:] = [d for d in dir if d not in exclude]
-        for file in files:
-            input_path = f"{root}{file}"
-            output_path = f"{p}{temp_name}/{file}"
-            if file.endswith((".jpeg", ".jpg", ".JPG")):
-                print(input_path)
-                setup(input_path, output_path)
+def read_final_image_settings():
+    with open("./config.yaml",'r') as f:
+        x = yaml.load(f,Loader=yaml.FullLoader)
+    return x['final_image']
 
-    size_in_pixel = Length_To_Pixel(Get_PaperSize(), is_inches=True)
-    paste_thumbnails(p, size_in_pixel)
 
 
 if __name__ == "__main__":
