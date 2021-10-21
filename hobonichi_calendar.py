@@ -51,17 +51,14 @@ def paste_thumbnails(p, size_in_pixel):
 
 
 def Get_PaperSize(paper=(8.5, 11)):
-    return paper
+    p = read_printer_settings()
+    return (p['paper_width'],p['paper_height'])
 
 
 def Get_Cousin_Calendar_Size():
     # Warning, the size here is in cm
-    return (3.3, 2.6)
-
-
-def Get_Weeks_Calendar_Size():
-    # Warning, the size here is in cm
-    return (2.0, 2.4)
+    f  = read_final_image_settings()
+    return (f['thumbnail']['width'],f['thumbnail']['height'])
 
 
 def Get_Supported_File_Types():
@@ -70,6 +67,7 @@ def Get_Supported_File_Types():
 
 def Length_To_Pixel(paper_size_tuple, is_inches=False):
     (w, h) = paper_size_tuple
+    ppi = read_printer_settings()['ppi']
 
     if is_inches:
         w_cm = Inches_To_Cm(w)
@@ -78,8 +76,8 @@ def Length_To_Pixel(paper_size_tuple, is_inches=False):
         w_cm = w
         h_cm = h
 
-    w_px = Centimeter_To_Pixel(w_cm, 1)
-    h_px = Centimeter_To_Pixel(h_cm, 1)
+    w_px = Centimeter_To_Pixel(w_cm, ppi)
+    h_px = Centimeter_To_Pixel(h_cm, ppi)
 
     return (w_px, h_px)
 
@@ -89,17 +87,17 @@ def Length_To_Pixel(paper_size_tuple, is_inches=False):
 def Inches_To_Cm(i):
     return i*2.54
 
-# Source: https://pixelsconverter.com/pixels-to-centimeters
-# But while it is dependent on DPI, 1 cm = 37.79 px
+# From : https://pixelsconverter.com/pixels-to-centimeters
+# 1 cm = 96px/2.54 =37.79 px,but it is also dependent on DPI
+# Note that it 1 px = 1 dot, so 300 DPI = 300 px 
 
 
 def Pixel_To_Centimeter(px, ppi=1):
-    # return px*(2.54/ppi)
-    return int(round(px/37.79))
+    return int(round(px*(2.54/ppi)))
 
 
 def Centimeter_To_Pixel(cm, ppi):
-    return int(round(cm*37.79))
+    return int(round(cm/(2.54/ppi)))
 
 
 def Create_Blank_Image(output_path, size):

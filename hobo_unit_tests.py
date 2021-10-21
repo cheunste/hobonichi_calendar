@@ -18,9 +18,6 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
     def test_get_cousin_calendar_size(self):
         self.assertTrue(hobo.Get_Cousin_Calendar_Size() == (3.3, 2.6))
 
-    def test_get_weeks_calendar_size(self):
-        self.assertTrue(hobo.Get_Weeks_Calendar_Size() == (2.0, 2.4))
-
     def test_get_file_type(self):
         self.assertTrue(hobo.Get_Supported_File_Types() == [
                         ("JPEG (*.jpg)", "*.jpg"), ("All files (*.*)", "*.*")])
@@ -30,7 +27,8 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
         self.assertTrue(r == 21.59)
 
     def test_pixel_to_cm(self):
-        self.assertTrue(hobo.Pixel_To_Centimeter(800) == 21)
+        self.assertTrue(hobo.Pixel_To_Centimeter(800) == 2032)
+        self.assertTrue(hobo.Pixel_To_Centimeter(3000,200) == 38)
 
     def test_cm_to_pixel(self):
         self.assertTrue(hobo.Centimeter_To_Pixel(1, 2) == 38)
