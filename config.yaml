@@ -1,6 +1,8 @@
 printer:
-  # Printer DPI
+  # Printer DPI (Dots/Inch)
   dpi: 300
+  # Printer PPI (Pixel/Inch)
+  ppi: 200
   # Is the paper output in inches or cm?
   in_inches: True
   # Width of the paper (unitless)
