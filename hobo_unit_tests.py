@@ -6,14 +6,17 @@ from PIL import Image, ImageOps
 
 
 class Test_Hobonichi_Calendar(unittest.TestCase):
+
+    # Both test_width and test_height are in inches
+    test_width = 8.5
+    test_height = 8.5
+    test_thumbnail = "./ForHobonichi/test.png"
+
     def test_calculate_papersize(self):
         self.assertTrue(hobo.Get_PaperSize() == (8.5, 11))
 
     def test_get_cousin_calendar_size(self):
         self.assertTrue(hobo.Get_Cousin_Calendar_Size() == (3.3, 2.6))
-
-    def test_get_weeks_calendar_size(self):
-        self.assertTrue(hobo.Get_Weeks_Calendar_Size() == (2.0, 2.4))
 
     def test_get_file_type(self):
         self.assertTrue(hobo.Get_Supported_File_Types() == [
@@ -24,12 +27,11 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
         self.assertTrue(r == 21.59)
 
     def test_pixel_to_cm(self):
-        # self.assertTrue(hobo.Pixel_To_Centimeter(800) == 2032.0)
-        # self.assertTrue(hobo.Pixel_To_Centimeter(800, 5) == 406.4)
-        self.assertTrue(hobo.Pixel_To_Centimeter(800) == 21)
+        self.assertTrue(hobo.Pixel_To_Centimeter(800) == 2032)
+        self.assertTrue(hobo.Pixel_To_Centimeter(3000,200) == 38)
 
     def test_cm_to_pixel(self):
-        self.assertTrue(hobo.Centimeter_To_Pixel(1, 2) == 38)
+        self.assertTrue(hobo.Centimeter_To_Pixel(1, 200) == 79)
 
     def test_create_new_image(self):
         p = "./test.jpg"
@@ -38,32 +40,28 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
         self.assertTrue(r)
 
     def test_rescale(self):
-        hobo.shrink_image("./furret.jpg", "./furrent_rescale.jpg", (150, 150))
+        hobo.shrink_image("./furret.JPG", "./furrent_rescale.jpg", (150, 150))
         self.assertTrue("./furret_rescale.jpg")
 
         print(hobo.Length_To_Pixel(hobo.Get_Cousin_Calendar_Size()))
-        hobo.shrink_image("./furret.jpg", "./furrent_rescale2.jpg",
+        hobo.shrink_image("./furret.JPG", "./furrent_rescale2.jpg",
                           hobo.Length_To_Pixel(hobo.Get_Cousin_Calendar_Size()))
         self.assertTrue("./furret_rescale2.jpg")
 
     def test_crop(self):
         size = (490, 140, 930, 720)
-        hobo.crop("./furret.jpg", "./furrent_crop.jpg", size)
+        hobo.crop("./furret.JPG", "./furrent_crop.jpg", size)
         self.assertTrue("./furret_crop.jpg")
 
     def test_landscape_or_portrait(self):
-        self.assertTrue(hobo.is_landscape("./surfing_pikachu.jpg"))
+        self.assertTrue(hobo.is_landscape("./surfing_pikachu.JPG"))
         self.assertFalse(hobo.is_portrait("./surfing_pikachu.JPG"))
 
     def test_put_to_final_image(self):
         p = "./"
-        # assume the following are inches
-        test_width = 8.5
-        test_height = 11
-
         size_in_pixel = hobo.Length_To_Pixel(
-            (test_width, test_height), is_inches=True)
-        fi.FinalImage(p, size_in_pixel)
+            (self.test_width, self.test_height), is_inches=True)
+        fi.FinalImage("Final_print.jpg", p, size_in_pixel)
 
         r = os.path.exists(p)
         self.assertTrue(r)
@@ -71,23 +69,20 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
         i = Image.open(f"./Final_print.jpg")
         (w, h) = i.size
         (nw, nh) = hobo.Length_To_Pixel(
-            (test_width, test_height), is_inches=True)
+            (self.test_width, self.test_height), is_inches=True)
         self.assertTrue(w == nw)
         self.assertTrue(h == nh)
 
     def test_paste_thumbnail_to_final_image(self):
 
-        test_width = 8.5
-        test_height = 11
-        test_thumbnail = "./ForHobonichi/test.png"
         size_in_pixel = hobo.Length_To_Pixel(
-            (test_width, test_height), is_inches=True)
+            (self.test_width, self.test_height), is_inches=True)
 
-        f = fi.FinalImage("./", size_in_pixel)
+        f = fi.FinalImage("test.jpg", "./", size_in_pixel)
         i = f.get_path()
-        s = Image.open(test_thumbnail)
+        s = Image.open(self.test_thumbnail)
         (w, h) = s.size
-        f.paste_thumbnail(test_thumbnail)
+        f.paste_thumbnail(self.test_thumbnail)
 
         expected_w = s.width
         expected_h = s.height
@@ -96,7 +91,28 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
         self.assertTrue(f.get_width_ptr() == expected_w,
                         f"resulting pointer from the final image is : {f.get_width_ptr()} and not {expected_w}")
 
+        # Do another paste just because I feel like it.
         f.paste_thumbnail("./ForHobonichi/test2.png")
+
+    def test_HeightException(self):
+        size_in_pixel = hobo.Length_To_Pixel(
+            (self.test_width, self.test_height), is_inches=True)
+
+        f = fi.FinalImage("Final_Image.jpg", "./", size_in_pixel)
+        f.height_ptr = 10000
+
+        try:
+            f.paste_thumbnail(self.test_thumbnail)
+            self.assertTrue(False)
+        except fi.HeightOutOfBoundException:
+            self.assertTrue(True)
+    
+    def test_read_settings(self):
+        p = hobo.read_printer_settings()
+        f = hobo.read_final_image_settings()
+        self.assertIsNotNone(p['dpi'])
+        self.assertIsNotNone(f['thumbnail']['in_inches'])
+        pass
 
 
 if __name__ == "__main__":
