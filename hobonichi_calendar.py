@@ -4,8 +4,9 @@ import os
 import FinalImage as fi
 import copy
 import yaml
+import pillow_heif
 
-file_types = [("JPEG (*.jpg)", "*.jpg"),
+file_types = [("JPEG (*.jpg)", "*.jpg", "*.heic","*.HEIC"),
               ("All files (*.*)", "*.*")]
 temp_name = 'ForHobonichi'
 
@@ -22,7 +23,7 @@ def convert_photos_in_directory(path):
         for file in files:
             input_path = f"{root}{file}"
             output_path = f"{p}{temp_name}/{file}"
-            if file.endswith((".jpeg", ".jpg", ".JPG")):
+            if file.endswith((".jpeg", ".jpg", ".JPG",".PNG",".png", ".HEIC",".heic")):
                 print(input_path)
                 setup(input_path, output_path)
 
@@ -51,11 +52,13 @@ def paste_thumbnails(p, size_in_pixel):
     for thumbnail_path in t:
         try:
             f.paste_thumbnail(thumbnail_path)
-        except fi.HeightOutOfBoundException:
+        except Exception as e:
+            print(f"Exception {e} occured. Creating new image")
             # Create a new Image
             id += 1
-            new_f = fi.FinalImage(f"Final_Print{id}.jpg", p, size_in_pixel)
+            new_f = fi.FinalImage(f"Final_Print{id}.jpg", f"{p}", size_in_pixel)
             f = new_f
+            print(f"Final_Print{id}.jpg created")
 
 # Warning, the 8.5 x 11 is in inches. No idea what the default metric size is for printer paper
 
@@ -121,35 +124,59 @@ def Create_Blank_Image(output_path, size):
 
 def shrink_image(image_path, output_path, size_px):
     #i = Image.open(image_path)
-    i = ImageOps.exif_transpose(Image.open(image_path))
+    extension = image_path[-4:]
+    if(extension.lower() == "heic"):
+        i = _convert_heic(image_path)
+    else:
+        i = ImageOps.exif_transpose(Image.open(image_path))
 
+    print(f"Creating Thumbnail for {image_path} with size {size_px}")
     i.thumbnail(size_px)
 
     border = read_final_image_settings()['border']
+    borderColor = read_final_image_settings()['borderColor']
     # this adds the border to the shrinked image
-    ni = ImageOps.expand(i, border)
+    ni = ImageOps.expand(i, border,fill=borderColor)
     (w, h) = ni.size
     print(f"shrinked width: {w}, shrinked height: {h}")
     ni.save(output_path, 'PNG', quality=95)
 
+def _convert_heic(heif_file):
+    heif_file = pillow_heif.read_heif(heif_file)
+    image = Image.frombytes( heif_file.mode, heif_file.size, heif_file.data, "raw",)
+    return image
 
 def crop(image_path, output_path, coords):
-    i = Image.open(image_path)
+    extension = image_path[-4:]
+    if(extension.lower() == "heic"):
+        i = _convert_heic(image_path)
+    else:
+        i = Image.open(image_path)
     cropped_image = i.crop(coords)
     i.close()
     cropped_image.save(output_path, 'PNG', quality=95)
 
 
 def is_landscape(image_path):
-    i = Image.open(image_path)
+    extension = image_path[-4:]
+    if(extension.lower() == "heic"):
+        i = _convert_heic(image_path)
+    else:
+        i = Image.open(image_path)
+
     (w, h) = ImageOps.exif_transpose(i).size
     print(f"width: {w}, height: {h}")
     i.close()
-    return w > h+(h*0.50)
+    return w > h
 
 
 def is_portrait(image_path):
-    i = Image.open(image_path)
+    extension = image_path[-4:]
+    if(extension.lower() == "heic"):
+        i = _convert_heic(image_path)
+    else:
+        i = Image.open(image_path)
+
     (w, h) = ImageOps.exif_transpose(i).size
     i.close()
     return h > w
