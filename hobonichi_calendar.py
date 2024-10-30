@@ -50,15 +50,17 @@ def paste_thumbnails(p, size_in_pixel):
     f = fi.FinalImage(f"Final_Print{id}.jpg", f"{p}", size_in_pixel)
     t = copy.deepcopy(f.get_all_thumbnails(f"{p}{temp_name}", temp_name))
     for thumbnail_path in t:
-        try:
-            f.paste_thumbnail(thumbnail_path)
-        except Exception as e:
-            print(f"Exception {e} occured. Creating new image")
-            # Create a new Image
-            id += 1
-            new_f = fi.FinalImage(f"Final_Print{id}.jpg", f"{p}", size_in_pixel)
-            f = new_f
-            print(f"Final_Print{id}.jpg created")
+        while True:
+            try:
+                f.paste_thumbnail(thumbnail_path)
+                break
+            except Exception as e:
+                print(f"Exception {e} occured. Creating new image")
+                # Create a new Image
+                id += 1
+                new_f = fi.FinalImage(f"Final_Print{id}.jpg", f"{p}", size_in_pixel)
+                f = new_f
+                print(f"Final_Print{id}.jpg created")
 
 # Warning, the 8.5 x 11 is in inches. No idea what the default metric size is for printer paper
 
@@ -114,11 +116,8 @@ def Centimeter_To_Pixel(cm, ppi):
 
 
 def Create_Blank_Image(output_path, size):
-    i = Image.new("RGB", size)
     bg = (255, 255, 255)
-    for y in range(size[1]):
-        for x in range(size[0]):
-            i.putpixel((x, y), bg)
+    i = Image.new("RGB", size,bg)
     i.save(output_path, 'PNG', quality=95)
 
 
