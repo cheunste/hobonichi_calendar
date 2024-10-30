@@ -12,13 +12,21 @@ printer:
 
 final_image:
   # This creates a black border around the thumbnail once printed (in pixel)
-  border: 5
+  border: 20 
+  # color of the border of the final pic. Generally, it really should be black (0,0,0) or white (255,255,255)
+  borderColor: 'white' 
   # Name of the final image. Leave the {0} in the name before the .jpg
   name: "final_print{0}.jpg"
   # The size of the thumbnail you want.
   # For Reference a Hobonichi Cousin's calendar size is 3.3cm x 2.6cm
   # Hobonichi Week's calendar size is  2cm x 2.4cm
+  # A page on the Hobonichi Day Free and Cousin is 17cm x 13.5cm
+  # Furthermore, the hobonichi website has furtrher references on recommended picture sizes as well
+  # https://www.1101.com/store/techo/en/magazine/contents/stationeryclub/m1w9rgq7k.html
   thumbnail:
     in_inches: False
-    width: 3.3
-    height: 2.6
+    #default width:3.3, height:2.6
+    #width: 4.5
+    #height: 3.4
+    width: 8.9
+    height: 8.9

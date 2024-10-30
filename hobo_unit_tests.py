@@ -19,8 +19,7 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
         self.assertTrue(hobo.Get_Cousin_Calendar_Size() == (3.3, 2.6))
 
     def test_get_file_type(self):
-        self.assertTrue(hobo.Get_Supported_File_Types() == [
-                        ("JPEG (*.jpg)", "*.jpg"), ("All files (*.*)", "*.*")])
+        self.assertTrue(hobo.Get_Supported_File_Types() == [("JPEG (*.jpg)", "*.jpg", "*.heic","*.HEIC"),("All files (*.*)", "*.*")])
 
     def test_in_cm_convert(self):
         r = hobo.Inches_To_Cm(8.5)
@@ -48,6 +47,10 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
                           hobo.Length_To_Pixel(hobo.Get_Cousin_Calendar_Size()))
         self.assertTrue("./furret_rescale2.jpg")
 
+    def test_rescale_heic(self):
+        hobo.shrink_image("./roundboys.HEIC", "./roundboys_rescale.jpg", (150, 150))
+        self.assertTrue("./roundboys_rescale.jpg")
+
     def test_crop(self):
         size = (490, 140, 930, 720)
         hobo.crop("./furret.JPG", "./furrent_crop.jpg", size)
@@ -56,6 +59,10 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
     def test_landscape_or_portrait(self):
         self.assertTrue(hobo.is_landscape("./surfing_pikachu.JPG"))
         self.assertFalse(hobo.is_portrait("./surfing_pikachu.JPG"))
+
+    def test_landscape_or_portrait_heic_file(self):
+        self.assertTrue(hobo.is_landscape("./roundboys.HEIC"))
+        self.assertFalse(hobo.is_portrait("./roundboys.HEIC"))
 
     def test_put_to_final_image(self):
         p = "./"
@@ -100,12 +107,8 @@ class Test_Hobonichi_Calendar(unittest.TestCase):
 
         f = fi.FinalImage("Final_Image.jpg", "./", size_in_pixel)
         f.height_ptr = 10000
-
-        try:
+        with self.assertRaises(fi.HeightOutOfBoundException):
             f.paste_thumbnail(self.test_thumbnail)
-            self.assertTrue(False)
-        except fi.HeightOutOfBoundException:
-            self.assertTrue(True)
     
     def test_read_settings(self):
         p = hobo.read_printer_settings()
