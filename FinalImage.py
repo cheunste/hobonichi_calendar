@@ -16,7 +16,7 @@ class FinalImage():
 
     def __init__(self, name, output_path, size_in_pixel):
         self.final_image_name = name
-        self.path = f"{output_path}/{self.final_image_name}"
+        self.path = f"{output_path}{self.final_image_name}"
         hobo.Create_Blank_Image(self.path, size_in_pixel)
 
     def get_all_thumbnails(self, output_path, temp_name):
@@ -49,7 +49,7 @@ class FinalImage():
             self.__increment_height_ptr()
             self.width_ptr = 0
             pass
-        if self.is_over_final_image_height(tw):
+        if self.is_over_final_image_height(th):
             raise HeightOutOfBoundException("Image Height Out of Bound")
             return
 
@@ -57,9 +57,11 @@ class FinalImage():
         t.close
 
     def is_over_final_image_width(self, thumbnail_width):
+        print(f"Warning: {thumbnail_width} is greater than the image width. Pasting image cannot take place")
         return self.width_ptr + thumbnail_width > Image.open(self.path).width
 
     def is_over_final_image_height(self, thumbnail_height):
+        print(f"Warning: {thumbnail_height} is greater than the image height. New {self.final_image_name} need to be be created ")
         return self.height_ptr + thumbnail_height > Image.open(self.path).height
 
     def get_width_ptr(self):
